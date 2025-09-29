@@ -132,22 +132,6 @@ library.add_book(b3)
 library.add_book(b4)
 library.register_user(u1)
 library.register_user(u2)
-# library.borrow_book(7248, 2131231)
-# library.borrow_book(7248, 2131231)
-# library.return_book(7248, 2131231)
-# library.return_book(7248, 2131231)
-# library.display_all_books()
-# library.display_all_users()
-# library.borrow_book(2134, 2131231)#invaild user id
-# library.borrow_book(7248, 9907311)#invaild isbn
-# library.return_book(8901, 2131231)#invaild user id
-# library.return_book(7248, 5555788)#invaild isbn
-# library.add_book(b1)#already added book
-# library.register_user(u1)#already added user
-# library.borrow_book(7248, 2131231)
-# library.borrow_book(7248, 5362231)
-# library.borrow_book(7248, 2344323)
-# library.borrow_book(7248, 7568153)
 
 continueLibrary = True
 while continueLibrary == True:
