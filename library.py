@@ -8,6 +8,9 @@ class Item:
 	def __str__(self):
 		return self.title
 
+	def display_title(self):
+		print(self.title)
+
 
 class Book(Item):
 	def __init__(self, title, author, identifier, available):
@@ -20,7 +23,6 @@ class Book(Item):
 		else:
 			print('This book is currently unavailable\n\n')
 
-
 class DVD(Item):
 	def __init__(self, title, author, identifier, available):
 		super().__init__(title, author, identifier, available)
@@ -32,7 +34,6 @@ class DVD(Item):
 		else:
 			print('This DVD is currently unavailable\n\n')
 
-
 class Magazine(Item):
 	def __init__(self, title, author, identifier, available):
 		super().__init__(title, author, identifier, available)
@@ -43,8 +44,6 @@ class Magazine(Item):
 			print('This magazine is currently available\n\n')
 		else:
 			print('This magazine is currently unavailable\n\n')
-
-
 
 class User:
 	def __init__(self, name, user_id, borrowed_items):
@@ -68,6 +67,8 @@ class User:
 		item.available = True
 		return True
 
+	def display_name(self):
+		print(self.name)
 
 class Librarian(User):
 	def __init__(self, name, user_id):
@@ -94,12 +95,6 @@ class Library:
 		else:
 			self.items.append(item)
 
-	def register_user(self, user):
-		if self.find_user(user.user_id) != None:
-			print('The id ' + str(user.user_id) + ' is already registered to another user in the library')
-		else:
-			self.users.append(user)
-
 	def find_item(self, identifier):
 		for i in range(0, len(self.items)):
 			item = self.items[i]
@@ -107,29 +102,92 @@ class Library:
 				return item
 		return None
 
-	def find_user(self, user_id):
-		for i in range(0, len(self.users)):
-				user = self.users[i]
-				if user.user_id == user_id:
-					return user
+	def find_book(self, identifier):
+		for i in range(0, len(self.items)):
+			item = self.items[i]
+			if item.identifier == identifier and type(item) is Book:
+				return item
 		return None
 
-	def borrow_item(self, user_id, identifier):
+	def add_book(self, item):
+		if self.find_book(item.identifier) != None:
+			print(item.title + ' is already registered in the library') 
+		else:
+			self.items.append(item)
+
+	def find_magazine(self, identifier):
+		for i in range(0, len(self.items)):
+			item = self.items[i]
+			if item.identifier == identifier and type(item) is Magazine:
+				return item
+		return None
+
+	def add_magazine(self, item):
+		if self.find_magazine(item.identifier) != None:
+			print(item.title + ' is already registered in the library') 
+		else:
+			self.items.append(item)
+
+	def find_dvd(self, identifier):
+		for i in range(0, len(self.items)):
+			item = self.items[i]
+			if item.identifier == identifier and type(item) is DVD:
+				return item
+		return None
+
+	def add_dvd(self, item):
+		if self.find_dvd(item.identifier) != None:
+			print(item.title + ' is already registered in the library') 
+		else:
+			self.items.append(item)
+
+	def find_student(self, user_id):
+		for i in range(0, len(self.users)):
+			user = self.users[i]
+			if user.user_id == user_id and type(user) is Student:
+				return user
+		return None
+
+	def register_student(self, user):
+		if self.find_student(user.user_id) != None:
+			print('The id ' + str(user.user_id) + ' is already registered to another student in the library')
+		else:
+			self.users.append(user)
+
+	def find_librarian(self, user_id):
+		for i in range(0, len(self.users)):
+			user = self.users[i]
+			if user.user_id == user_id and type(user) is Librarian:
+				return user
+		return None
+
+	def register_librarian(self, user):
+		if self.find_librarian(user.user_id) != None:
+			print('The id ' + str(user.user_id) + ' is already registered to another librarian in the library')
+		else:
+			self.users.append(user)
+
+
+	def borrow_item(self, student_id, librarian_id, identifier):
+		librarian = self.find_librarian(librarian_id)
+		if librarian == None:
+			print(str(librarian_id) + ' is not a registered librarian id')
+			return
 		item_to_borrow = self.find_item(identifier)
 		if item_to_borrow == None:
 			print(str(identifier) + ' is not a registered item in the library')
 			return
-		user = self.find_user(user_id)
-		if user == None:
-			print(str(user_id) + ' is not a registered user id')
+		student = self.find_student(student_id)
+		if student == None:
+			print(str(student_id) + ' is not a registered student id')
 			return
-		result = user.borrow_item(item_to_borrow)
+		result = student.borrow_item(item_to_borrow)
 		if result == 'available':
-			print(user.name + ' has borrowed ' + item_to_borrow.title)
+			print(student.name + ' has borrowed ' + item_to_borrow.title)
 		if result == 'unavailable':
 			print(item_to_borrow.title + ' is currently unavailable')
 		if result == 'limit reached':
-			print(item_to_borrow.title + ' could not be borrowed since ' + user.name + ' has already borrowed 3 items')
+			print(item_to_borrow.title + ' could not be borrowed since ' + student.name + ' has already borrowed 3 items')
 
 	def return_item(self, user_id, identifier):
 		item_to_return = self.find_item(identifier)
@@ -146,21 +204,95 @@ class Library:
 		if result == False:
 			print(item_to_return.title + ' cannot be returned')				
 
-	def display_all_items(self):
-		print('Items:\n')
+	def display_all_books(self):
+		print('Books:\n')
 		for i in range(0, len(self.items)):
-			print(self.items[i])
+			if type(self.items[i]) is Book:
+				self.items[i].display_title()
 
+	def display_all_magazines(self):
+		print('Magazines:\n')
+		for i in range(0, len(self.items)):
+			if type(self.items[i]) is Magazine:
+				self.items[i].display_title()
 
-	def display_all_users(self):
-		print('Users:\n')
+	def display_all_dvds(self):
+		print('Dvds:\n')
+		for i in range(0, len(self.items)):
+			if type(self.items[i]) is DVD:
+				self.items[i].display_title()
+
+	def display_all_students(self):
+		print('Students:\n')
 		for i in range(0, len(self.users)):
-			print(self.users[i].name)
+			if type(self.users[i]) is Student:
+				self.users[i].display_name()
+
+	def display_all_librarians(self):
+		print('Librarians:\n')
+		for i in range(0, len(self.users)):
+			if type(self.users[i]) is Librarian:
+				self.users[i].display_name()
+
+def inputItem():
+	valid_title = False
+	valid_author = False
+	valid_identifier = False
+	while valid_title == False:
+		title = str(input('Please enter the items name: '))
+		if not title:
+			print('Item name can not be empty')
+		else:
+			valid_title = True
+
+	while valid_author == False:
+		author = str(input('Please enter the authors name: '))
+		if not author:
+			print('Author name can not be empty')
+		else:
+			valid_author = True
+
+	while valid_identifier == False:
+		try:
+			identifier = int(input('Please enter the items identifier: '))
+		except ValueError:
+			print('Please enter a number')
+		else:
+			valid_identifier = True
+
+	return title, author, identifier
+
+def inputUser():
+	valid_name = False
+	valid_id = False
+	while valid_name == False:
+		name = str(input('Please enter the users name: '))
+		if not name:
+			print('User name can not be empty')
+		else:
+			valid_name = True
+
+	while valid_id == False:
+		try:
+			user_id = int(input('Please assign the new user an id: '))
+		except ValueError:
+			print('Please enter a number')
+		else:
+			valid_id = True
+
+		return name, user_id
+			
 
 b1 = Book('Harry Potter', 'J. K. Rowling', 2131231, True)
 b2 = Book('Barry Hopper', 'R. N. Howling', 5362231, True)
-b3 = Book('hello' , 'world', 2344323, True)
-b4 = Book('T', 'H', 7568153, True)
+b3 = Book('book3' , 'world', 2344323, True)
+b4 = Book('book4', 'H', 7568153, True)
+
+m1 = Magazine('mag1', 'n', 123, True)
+m2 = Magazine('mag2', 'g', 321, True)
+
+d1 = DVD('DVD1', 'J', 987, True)
+d2 = DVD('DVD2', 'L', 789, True)
 
 l1 = Librarian('Kas', 7248)
 
@@ -172,41 +304,63 @@ library.add_item(b1)
 library.add_item(b2)
 library.add_item(b3)
 library.add_item(b4)
-library.register_user(l1)
-library.register_user(s1)
-library.register_user(s2)
+library.add_item(m1)
+library.add_item(m2)
+library.add_item(d1)
+library.add_item(d2)
+library.register_librarian(l1)
+library.register_student(s1)
+library.register_student(s2)
+
 
 continueLibrary = True
+librarian_id = int(input('Please enter your librarian id '))
+librarian = library.find_librarian(librarian_id)
+if librarian == None:
+	print(str(librarian_id) + ' is not a registered librarian id')
+	continueLibrary = False
 while continueLibrary == True:
 	valid_user_option = False
 	while valid_user_option == False:
 		try:
 			user_option = int(input('''Would you like to: 
-1: Display all items 
-2: Display all users
-3: Borrow a item
-4: Return a item
-5: Add a new item to the library
-6: Register a new user to the library
+1: Display all books
+2: Display all magazines
+3: Dispaly all dvds
+4: Display all students
+5: Display all Librarians
+6: Borrow a item
+7: Return a item
+8: Add a new book to the library
+9: Add a new magazine to the library
+10: Add a new DVD to the library
+11: Register a new student to the library
+12: Register a new librarian to the library
 '''))
 		except:
 			print('Please enter a number')
 			continue
-		if user_option != 1 and user_option != 2 and user_option != 3 and user_option != 4 and user_option != 5 and user_option != 6:
+		if user_option != 1 and user_option != 2 and user_option != 3 and user_option != 4 and user_option != 5 and user_option != 6 and user_option != 7 and user_option != 8 and user_option != 9 and user_option != 10 and user_option != 11 and user_option != 12:
 			print('Please enter a valid number')
 		else:
 			valid_user_option = True
 
 	if user_option == 1:
-		library.display_all_items()
+		library.display_all_books()
 	elif user_option == 2:
-		library.display_all_users()
+		library.display_all_magazines()
 	elif user_option == 3:
+		library.display_all_dvds()
+	elif user_option == 4:
+		library.display_all_students()
+	elif user_option == 5:
+		library.display_all_librarians()
+	elif user_option == 6:
 		valid_user = False
 		valid_identifier = False
 		while valid_user == False:
 			try:
-				user_id = int(input('Please enter the users id: '))
+				student_id = int(input('Please enter the students id: '))
 			except ValueError:
 				print('Please enter a number')
 			else:
@@ -220,13 +374,13 @@ while continueLibrary == True:
 			else:
 				valid_identifier = True
 
-		library.borrow_item(user_id, identifier)
-	elif user_option == 4:
+		library.borrow_item(student_id, librarian_id, identifier)
+	elif user_option == 7:
 		valid_user = False
 		valid_identifier = False
 		while valid_user == False:
 			try:
-				user_id = int(input('Please enter the users id: '))
+				student_id = int(input('Please enter the students id: '))
 			except ValueError:
 				print('Please enter a number')
 			else:
@@ -240,56 +394,36 @@ while continueLibrary == True:
 			else:
 				valid_identifier = True
 
-		library.return_item(user_id, identifier)
-	elif user_option == 5:
-		valid_title = False
-		valid_author = False
-		valid_identifier = False
-		while valid_title == False:
-			title = str(input('Please enter the items name: '))
-			if not title:
-				print('Item name can not be empty')
-			else:
-				valid_title = True
+		library.return_item(student_id, identifier)
+	elif user_option == 8:
+		title,author,identifier = inputItem()
 
-		while valid_author == False:
-			author = str(input('Please enter the author of the book: '))
-			if not author:
-				print('Author name can not be empty')
-			else:
-				valid_author = True
+		newBook = Book(title, author, identifier, True)
+		library.add_book(newBook)
 
-		while valid_identifier == False:
-			try:
-				identifier = int(input('Please enter the items identifier: '))
-			except ValueError:
-				print('Please enter a number')
-			else:
-				valid_identifier = True
+	elif user_option == 9:
+		title,author,identifier = inputItem()
 
-		newItem = Item(title, author, identifier, True)
-		library.add_item(newItem)
+		newMagazine = Magazine(title, author, identifier, True)
+		library.add_magazine(newMagazine)
 
-	elif user_option == 6:
-		valid_name = False
-		valid_id = False
-		while valid_name == False:
-			name = str(input('Please enter the users name: '))
-			if not name:
-				print('User name can not be empty')
-			else:
-				valid_name = True
+	elif user_option == 10:
+		title,author,identifier = inputItem()
 
-		while valid_id == False:
-			try:
-				user_id = int(input('Please assign the new user an id: '))
-			except ValueError:
-				print('Please enter a number')
-			else:
-				valid_id = True
+		newDVD = DVD(title, author, identifier, True)
+		library.add_dvd(newDVD)
 
-		newUser = User(name, user_id, [])
-		library.register_user(newUser)
+	elif user_option == 11:
+		name,user_id = inputUser()
+
+		newStudent = Student(name, user_id, [])
+		library.register_student(newStudent)
+
+	elif user_option == 12:
+		name,user_id = inputUser()
+
+		newLibraian = Librarian(name, user_id)
+		library.register_librarian(newLibraian)
 
 
 	validAnswer = ''
