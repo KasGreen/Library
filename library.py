@@ -11,6 +11,9 @@ class Item:
 	def display_title(self):
 		print(self.title)
 
+	def display_title_and_identifier(self):
+		print(self.title + ' (' + str(self.identifier) + ')')
+
 
 class Book(Item):
 	def __init__(self, title, author, identifier, available):
@@ -70,6 +73,9 @@ class User:
 	def display_name(self):
 		print(self.name)
 
+	def display_name_and_Id(self):
+		print(self.name + ' (' + str(self.user_id) + ')')
+
 class Librarian(User):
 	def __init__(self, name, user_id):
 		super().__init__(name, user_id, None)
@@ -77,6 +83,12 @@ class Librarian(User):
 class Student(User):
 	def __init__(self, name, user_id, borrowed_items):
 		super().__init__(name, user_id, borrowed_items)
+
+	def display_borrowed_items(self):
+		print('Borrowed items:\n')
+		for i in range(0, len(self.borrowed_items)):
+			print(self.borrowed_items[i].title + ' (' + str(self.borrowed_items[i].identifier) + ')')
+		print('')
 
 	def display_user_info(self):
 		print('Name: ' + self.name + '\nUser id: ' + str(self.user_id) + '\nBorrowed books:\n')
@@ -167,20 +179,20 @@ class Library:
 		else:
 			self.users.append(user)
 
-
-	def borrow_item(self, student_id, librarian_id, identifier):
-		librarian = self.find_librarian(librarian_id)
-		if librarian == None:
-			print(str(librarian_id) + ' is not a registered librarian id')
-			return
-		item_to_borrow = self.find_item(identifier)
-		if item_to_borrow == None:
+	def get_item_and_student(self):
+		item = self.find_item(identifier)
+		if item == None:
 			print(str(identifier) + ' is not a registered item in the library')
 			return
 		student = self.find_student(student_id)
 		if student == None:
 			print(str(student_id) + ' is not a registered student id')
 			return
+
+		return item, student
+
+	def borrow_item(self, student_id, identifier):
+		item_to_borrow, student = self.get_item_and_student()
 		result = student.borrow_item(item_to_borrow)
 		if result == 'available':
 			print(student.name + ' has borrowed ' + item_to_borrow.title)
@@ -189,18 +201,11 @@ class Library:
 		if result == 'limit reached':
 			print(item_to_borrow.title + ' could not be borrowed since ' + student.name + ' has already borrowed 3 items')
 
-	def return_item(self, user_id, identifier):
-		item_to_return = self.find_item(identifier)
-		if item_to_return == None:
-			print(str(identifier) + ' is not a registered item in the library')
-			return
-		user = self.find_user(user_id)
-		if user == None:
-			print(str(user_id) + ' is not a registered user id')
-			return
-		result = user.return_item(item_to_return)
+	def return_item(self, student_id, identifier):
+		item_to_return, student = self.get_item_and_student()
+		result = student.return_item(item_to_return)
 		if result == True:
-			print(user.name + ' has returned ' + item_to_return.title)
+			print(student.name + ' has returned ' + item_to_return.title)
 		if result == False:
 			print(item_to_return.title + ' cannot be returned')				
 
@@ -208,31 +213,52 @@ class Library:
 		print('Books:\n')
 		for i in range(0, len(self.items)):
 			if type(self.items[i]) is Book:
-				self.items[i].display_title()
+				self.items[i].display_title_and_identifier()
+		print('')
 
 	def display_all_magazines(self):
 		print('Magazines:\n')
 		for i in range(0, len(self.items)):
 			if type(self.items[i]) is Magazine:
-				self.items[i].display_title()
+				self.items[i].display_title_and_identifier()
+		print('')
 
 	def display_all_dvds(self):
 		print('Dvds:\n')
 		for i in range(0, len(self.items)):
 			if type(self.items[i]) is DVD:
-				self.items[i].display_title()
+				self.items[i].display_title_and_identifier()
+		print('')
+
+	def display_all_available_items(self):
+		print('Books:\n')
+		for i in range(0, len(self.items)):
+			if type(self.items[i]) is Book and self.items[i].available == True:
+				self.items[i].display_title_and_identifier()
+		print('\nMagazines:\n')
+		for i in range(0, len(self.items)):
+			if type(self.items[i]) is Magazine and self.items[i].available == True:
+				self.items[i].display_title_and_identifier()
+		print('\nDvds:\n')
+		for i in range(0, len(self.items)):
+			if type(self.items[i]) is DVD and self.items[i].available == True:
+				self.items[i].display_title_and_identifier()
+		print('')
+
 
 	def display_all_students(self):
-		print('Students:\n')
+		print('Students:')
 		for i in range(0, len(self.users)):
 			if type(self.users[i]) is Student:
-				self.users[i].display_name()
+				self.users[i].display_name_and_Id()
+		print('')
 
 	def display_all_librarians(self):
-		print('Librarians:\n')
+		print('Librarians:')
 		for i in range(0, len(self.users)):
 			if type(self.users[i]) is Librarian:
-				self.users[i].display_name()
+				self.users[i].display_name_and_Id()
+		print('')
 
 def inputItem():
 	valid_title = False
@@ -281,6 +307,29 @@ def inputUser():
 			valid_id = True
 
 		return name, user_id
+
+def studentID_input():
+	valid_user = False
+	library.display_all_students()
+	while valid_user == False:
+		try:
+			student_id = int(input('Please enter the students id: '))
+		except ValueError:
+			print('Please enter a number')
+		else:
+			valid_user = True
+	return student_id
+
+def itemIdentifier_input():
+	valid_identifier = False
+	while valid_identifier == False:
+		try:
+			identifier = int(input('Please enter the items identifier: '))
+		except ValueError:
+			print('Please enter a number')
+		else:
+			valid_identifier = True
+	return identifier
 			
 
 b1 = Book('Harry Potter', 'J. K. Rowling', 2131231, True)
@@ -311,7 +360,6 @@ library.add_item(d2)
 library.register_librarian(l1)
 library.register_student(s1)
 library.register_student(s2)
-
 
 continueLibrary = True
 librarian_id = int(input('Please enter your librarian id '))
@@ -356,43 +404,16 @@ while continueLibrary == True:
 	elif user_option == 5:
 		library.display_all_librarians()
 	elif user_option == 6:
-		valid_user = False
-		valid_identifier = False
-		while valid_user == False:
-			try:
-				student_id = int(input('Please enter the students id: '))
-			except ValueError:
-				print('Please enter a number')
-			else:
-				valid_user = True
+		student_id = studentID_input()
+		library.display_all_available_items()
+		identifier = itemIdentifier_input()
 
-		while valid_identifier == False:
-			try:
-				identifier = int(input('Please enter the items identifier: '))
-			except ValueError:
-				print('Please enter a number')
-			else:
-				valid_identifier = True
-
-		library.borrow_item(student_id, librarian_id, identifier)
+		library.borrow_item(student_id, identifier)
 	elif user_option == 7:
-		valid_user = False
-		valid_identifier = False
-		while valid_user == False:
-			try:
-				student_id = int(input('Please enter the students id: '))
-			except ValueError:
-				print('Please enter a number')
-			else:
-				valid_user = True
-
-		while valid_identifier == False:
-			try:
-				isbn = int(input('Please enter the items identifier: '))
-			except ValueError:
-				print('Please enter a number')
-			else:
-				valid_identifier = True
+		student_id = studentID_input()
+		student = library.find_student(student_id)
+		student.display_borrowed_items()
+		identifier = itemIdentifier_input()
 
 		library.return_item(student_id, identifier)
 	elif user_option == 8:
