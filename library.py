@@ -125,9 +125,14 @@ class Student(User):
 			if days_left >= 0:
 				print(self.borrowed_items[i].title + ' (' + str(self.borrowed_items[i].identifier) + ') ' + 'Days left - ' + str(days_left))
 			else:
-				total_fine = -1 * (days_left) * self.borrowed_items[i].fine
+				total_fine = self.calculate_item_fine(days_left, self.borrowed_items[i].fine)
 				print(self.borrowed_items[i].title + ' (' + str(self.borrowed_items[i].identifier) + ') ' + 'Days overdue - ' + str(days_left * -1) + ' Fine = ' + str(total_fine))
 		print('')
+
+	def calculate_item_fine(self, days, fine_per_day):
+		total_fine = -1 * (days) * fine_per_day
+		return total_fine
+
 
 	def has_borrowed_items(self):
 		if len(self.borrowed_items) == 0:
