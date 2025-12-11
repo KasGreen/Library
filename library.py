@@ -135,6 +135,12 @@ class Student(User):
 		total_fine = -1 * (days) * fine_per_day
 		return total_fine
 
+	def calculate_overdue_days(self, days):
+		if days >= 0:
+			return 0
+		return -1 * days
+
+
 
 	def has_borrowed_items(self):
 		if len(self.borrowed_items) == 0:
