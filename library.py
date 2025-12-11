@@ -130,6 +130,8 @@ class Student(User):
 		print('')
 
 	def calculate_item_fine(self, days, fine_per_day):
+		if days >= 0:
+			return 0
 		total_fine = -1 * (days) * fine_per_day
 		return total_fine
 
